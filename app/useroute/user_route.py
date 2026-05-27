@@ -4,11 +4,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.schema.User_schema import Login,SignUp,UserResponse
 from jose import JWTError
+from app.auth.security import verify_token
+from fastapi.security import OAuth2PasswordRequestForm
+from app.core.auth_scheme import Oaauth_schema
+
 
 router=APIRouter()
 
 @router.post("/signup")
-async def sign_up(item:SignUp,db:AsyncSession=Depends(get_db)):
+async def sign_up(item:SignUp,
+                  db:AsyncSession=Depends(get_db)):
     repo=UserRepository(db)
 
     return await repo.signup(
@@ -18,13 +23,20 @@ async def sign_up(item:SignUp,db:AsyncSession=Depends(get_db)):
     )
 
 @router.post("/login")
-async def sign_in(item:Login,db:AsyncSession=Depends(get_db)):
+async def sign_in(formdata:OAuth2PasswordRequestForm=Depends(),db:AsyncSession=Depends(get_db)):
     repo=UserRepository(db)
 
     result =await repo.login(
-        item.email,
-        item.password
+        formdata.username,
+        formdata.password
     )
     if result is None:
         raise HTTPException(status_code=200,detail=f"Invalid Token")
     return result
+
+@router.get("/profile",response_model=UserResponse)
+async def profile(email:str=Depends(verify_token),
+    db:AsyncSession=Depends(get_db)):
+    repo=UserRepository(db)
+
+    return await repo.current_user(email)

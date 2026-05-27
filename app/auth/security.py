@@ -1,6 +1,8 @@
 from passlib.context import CryptContext
 from jose import jwt,JWTError
 from datetime import datetime,timezone,timedelta
+from fastapi import Depends,HTTPException
+from app.core.auth_scheme import Oaauth_schema
 
 SECRET_KEY="mysecret123"
 ALGORITHM="HS256" 
@@ -33,3 +35,20 @@ def create_session_token(data:dict):
     
     except JWTError:
         return None
+    
+def verify_token(token:str=Depends(Oaauth_schema)):
+    try:
+        result=jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+        email=result.get("sub")
+
+        if not email :
+            raise HTTPException(status_code=200,detail="Invalid Token")
+        
+        return email
+    
+    except JWTError:
+        raise HTTPException(status_code=401)

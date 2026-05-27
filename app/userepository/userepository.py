@@ -55,3 +55,14 @@ class UserRepository:
             "token_type":"Bearer"
         }
     
+    async def current_user(self,email):
+        val=await self.db.execute(
+            select(User).where(User.email==email)
+        )
+        user=val.scalar()
+
+        if not email:
+            raise HTTPException(status_code=200,detail=f"Invalid Token")
+
+        return user
+    
