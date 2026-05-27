@@ -121,6 +121,23 @@ class UserRepository:
         return {
                 "message":"Password Updated Successfully"
             }
+    
+    async def delete_user(self,id):
+        val=await self.db.execute(
+            select(User).where(User.id==id)
+        )
+        user=val.scalar()
+
+        if not user:
+            raise HTTPException(status_code=200,detail="User not found")
+
+        await self.db.delete(user)
+
+        await self.db.commit()
+
+        return {
+            "message":"User deleted successfully"
+        }
 
 
 

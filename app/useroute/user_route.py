@@ -61,4 +61,10 @@ async def patch_password(update_pass:PatchPassword,id:int=Depends(verify_id),db:
         update_pass.password
     )
 
+@router.delete("/{id}")
+async def delete_user(id:int=Depends(verify_id),db:AsyncSession=Depends(get_db)):
+    repo=UserRepository(db)
+
+    return await repo.delete_user(id)
+
     
