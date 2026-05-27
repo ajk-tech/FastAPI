@@ -44,6 +44,7 @@ def verify_token(token:str=Depends(Oaauth_schema)):
             algorithms=[ALGORITHM]
         )
         email=result.get("sub")
+        
 
         if not email :
             raise HTTPException(status_code=200,detail="Invalid Token")
@@ -52,3 +53,22 @@ def verify_token(token:str=Depends(Oaauth_schema)):
     
     except JWTError:
         raise HTTPException(status_code=401)
+
+def verify_id(token:str=Depends(Oaauth_schema)):
+    try:
+        result=jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+        id=result.get("id")
+
+        if not id:
+            raise HTTPException(status_code=200,detail=f"Invalid Token")
+        
+        
+
+        return id
+    
+    except JWTError:
+        raise HTTPException(status_code=200,detail="Jwt error")

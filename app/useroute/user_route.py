@@ -2,9 +2,9 @@ from app.userepository.userepository import UserRepository
 from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.schema.User_schema import Login,SignUp,UserResponse
+from app.schema.User_schema import Login,SignUp,UserResponse,PatchUser,PatchPassword
 from jose import JWTError
-from app.auth.security import verify_token
+from app.auth.security import verify_token,verify_id
 from fastapi.security import OAuth2PasswordRequestForm
 from app.core.auth_scheme import Oaauth_schema
 
@@ -40,3 +40,25 @@ async def profile(email:str=Depends(verify_token),
     repo=UserRepository(db)
 
     return await repo.current_user(email)
+
+@router.patch("/{id}",response_model=UserResponse)
+async def patch_user(update:PatchUser,id:int=Depends(verify_id),db:AsyncSession=Depends(get_db)):
+    repo=UserRepository(db)
+
+    return await repo.patch_user (
+        id,
+        update.name,
+        update.email
+    )
+
+@router.patch("/password/{id}")
+async def patch_password(update_pass:PatchPassword,id:int=Depends(verify_id),db:AsyncSession=Depends(get_db)):
+    repo=UserRepository(db)
+
+    return await repo.update_password(
+        id,
+        update_pass.current_password,
+        update_pass.password
+    )
+
+    
