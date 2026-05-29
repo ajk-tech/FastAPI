@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class SignUp(BaseModel):
     name:str
     email:str
@@ -22,3 +23,16 @@ class PatchUser(BaseModel):
 class PatchPassword(BaseModel):
     current_password:str
     password:str
+
+class AddItems(BaseModel):
+    items:str
+    price:int
+
+class GetItems(BaseModel):
+    id:int
+    items:str
+    price:int
+
+    model_config={
+        "from_attributes":True
+    }

@@ -1,4 +1,4 @@
-from app.db.models import User
+from app.db.models import User,Item,Cart
 from app.auth.security import pwd_context,create_session_token
 from sqlalchemy import select
 from fastapi import HTTPException
@@ -138,6 +138,29 @@ class UserRepository:
         return {
             "message":"User deleted successfully"
         }
+    
+    async def post_items(id,self,items,price):
+        val=await self.db.execute(
+            select(User).where(User.id==id)
+        )
+        user=val.scalar()
+
+        if not user :
+            raise HTTPException(status_code=200,detail="Invalid Token")
+        
+
+        item=Item(
+            items=items,
+            price=price
+        )
+
+        self.db.add(item)
+
+        await self.db.commit()
+        await self.db.refresh(item)
+
+    
+    
 
 
 

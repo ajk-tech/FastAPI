@@ -2,7 +2,7 @@ from app.userepository.userepository import UserRepository
 from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.schema.User_schema import Login,SignUp,UserResponse,PatchUser,PatchPassword
+from app.schema.User_schema import Login,SignUp,UserResponse,PatchUser,PatchPassword,AddItems,GetItems
 from jose import JWTError
 from app.auth.security import verify_token,verify_id
 from fastapi.security import OAuth2PasswordRequestForm
@@ -67,4 +67,8 @@ async def delete_user(id:int=Depends(verify_id),db:AsyncSession=Depends(get_db))
 
     return await repo.delete_user(id)
 
-    
+@router.post("/items",response_model=AddItems)
+async def post_items(id:int=Depends(verify_id),db:AsyncSession=Depends(get_db)):
+    repo=UserRepository(db)
+
+    return await repo.post_items
